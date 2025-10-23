@@ -38,6 +38,16 @@ def custom_metrics_aggregation_fn(
 
     return aggregated_metrics
 
+def custom_train_metrics_aggregation_fn(
+    records: list[RecordDict], weighting_metric_name: str
+) -> Metrics:
+    """Custom function to aggregate train metrics on Client Side"""
+    for r in records:
+        for k, m in r.metric_records.items():
+            print(k, m)
+
+    # Returns a dictionary with aggregated metrics
+    return {}
 
 # Create ServerApp
 app = ServerApp()
@@ -58,7 +68,8 @@ def main(grid: Grid, context: Context) -> None:
 
     # Initialize FedAvg strategy
     strategy = CustomFedAdagrad(fraction_train=fraction_train,
-                                evaluate_metrics_aggr_fn=custom_metrics_aggregation_fn,)
+                                evaluate_metrics_aggr_fn=custom_metrics_aggregation_fn,
+                                train_metrics_aggr_fn=custom_train_metrics_aggregation_fn,)
 
     # Start strategy, run FedAvg for `num_rounds`
     result = strategy.start(
