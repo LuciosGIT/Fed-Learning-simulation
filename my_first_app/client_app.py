@@ -37,7 +37,6 @@ def train(msg: Message, context: Context):
         device,
     )
 
-    complex_metric = {'a': 123, 'b': random(), "mylist": [1, 2, 3, 4]}
 
     # Construct and return reply Message
     model_record = ArrayRecord(model.state_dict())
