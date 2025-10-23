@@ -3,6 +3,7 @@
 import torch
 from flwr.app import ArrayRecord, Context, Message, MetricRecord, RecordDict
 from flwr.clientapp import ClientApp
+from random import random
 
 from my_first_app.task import Net, load_data
 from my_first_app.task import test as test_fn
@@ -36,10 +37,13 @@ def train(msg: Message, context: Context):
         device,
     )
 
+    complex_metric = {'a': 123, 'b': random(), "mylist": [1, 2, 3, 4]}
+
     # Construct and return reply Message
     model_record = ArrayRecord(model.state_dict())
     metrics = {
         "train_loss": train_loss,
+        "random_num": random(),
         "num-examples": len(trainloader.dataset),
     }
     metric_record = MetricRecord(metrics)
