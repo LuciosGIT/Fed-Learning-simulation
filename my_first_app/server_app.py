@@ -68,14 +68,21 @@ def main(grid: Grid, context: Context) -> None:
 
     # Initialize FedAvg strategy
     strategy = CustomFedAdagrad(fraction_train=fraction_train,
-                                evaluate_metrics_aggr_fn=custom_metrics_aggregation_fn,
-                                train_metrics_aggr_fn=custom_train_metrics_aggregation_fn,)
+                                )
+    
+    train_config = ConfigRecord({
+    "lr": lr,
+    "clipping_norm": 1.0,
+    "sensitivity": 1.0,
+    "epsilon": 0.1,
+    "delta": 1e-5,
+    })
 
     # Start strategy, run FedAvg for `num_rounds`
     result = strategy.start(
         grid=grid,
         initial_arrays=arrays,
-        train_config=ConfigRecord({"lr": lr}),
+        train_config=train_config,
         num_rounds=num_rounds,
 
 
