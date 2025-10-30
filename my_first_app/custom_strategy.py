@@ -8,10 +8,16 @@ class CustomFedAdagrad(FedAdagrad):
     def configure_train(
         self, server_round: int, arrays: ArrayRecord, config: ConfigRecord, grid: Grid
     ) -> Iterable[Message]:
-        """Configure the next round of federated training and maybe do LR decay."""
-        # Decrease learning rate by a factor of 0.5 every 5 rounds
+        """Configure the next round of federated training and maybe do LR and epsilon decay."""
+        # Diminui o learning rate a cada 5 rodadas
         if server_round % 5 == 0 and server_round > 0:
             config["lr"] *= 0.5
             print("LR decreased to:", config["lr"])
-        # Pass the updated config and the rest of arguments to the parent class
+        # Atualiza epsilon conforme desejado
+        if "epsilon" in config:
+            # Exemplo: dobra epsilon a cada 10 rodadas (ajuste sua lógica aqui)
+            if server_round % 10 == 0 and server_round > 0:
+                config["epsilon"] *= 2
+                print("Epsilon increased to:", config["epsilon"])
+        # Passa o restante para a classe-pai
         return super().configure_train(server_round, arrays, config, grid)
