@@ -3,6 +3,7 @@
 import torch
 from flwr.app import ArrayRecord, Context, Message, MetricRecord, RecordDict
 from flwr.clientapp import ClientApp
+from flwr.clientapp.mod import LocalDpMod
 from random import random
 
 from my_first_app.task import Net, load_data
@@ -16,6 +17,18 @@ app = ClientApp()
 @app.train()
 def train(msg: Message, context: Context):
     """Train the model on local data."""
+
+    config = msg.content["config"]
+    clipping_norm = config.get("clipping_norm", 1.0)
+    sensitivity = config.get("sensitivity", 1.0)
+    epsilon = config.get("epsilon", 1.0)
+    delta = config.get("delta", 1e-5)
+
+    local_dp_obj = LocalDpMod(
+        clipping_norm=clipping_norm,
+        sensitivity=sensitivity,
+        epsilon=epsilon,
+        delta=delta,)
 
     # Load the model and initialize it with the received weights
     model = Net()
@@ -34,15 +47,16 @@ def train(msg: Message, context: Context):
         trainloader,
         context.run_config["local-epochs"],
         msg.content["config"]["lr"],
-        device,
+        device
     )
 
+    print(f"Epsilon da rodada: {epsilon}")
 
     # Construct and return reply Message
     model_record = ArrayRecord(model.state_dict())
     metrics = {
         "train_loss": train_loss,
-        "random_num": random(),
+        "epsilon": epsilon,
         "num-examples": len(trainloader.dataset),
     }
     metric_record = MetricRecord(metrics)
