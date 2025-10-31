@@ -6,6 +6,7 @@ from flwr.app import ArrayRecord, ConfigRecord, Context, MetricRecord, RecordDic
 from flwr.common import Metrics
 from flwr.serverapp import Grid, ServerApp
 from flwr.serverapp.strategy import FedAvg
+from flwr.serverapp.strategy import DifferentialPrivacyServerSideFixedClipping
 
 from my_first_app.task import Net
 
@@ -66,20 +67,29 @@ def main(grid: Grid, context: Context) -> None:
     global_model = Net()
     arrays = ArrayRecord(global_model.state_dict())
 
+       
+
     # Initialize FedAvg strategy
     strategy = CustomFedAdagrad(fraction_train=fraction_train,
                                 )
+
+    noise_multiplier = 1.0       
+    clipping_norm = 1.0            
+    num_sampled_clients = 10  
+
+    dp_strategy = DifferentialPrivacyServerSideFixedClipping(
+    strategy=strategy,
+    noise_multiplier=noise_multiplier,
+    clipping_norm=clipping_norm,
+    num_sampled_clients=num_sampled_clients,
+)
     
     train_config = ConfigRecord({
     "lr": lr,
-    "clipping_norm": 1.0,
-    "sensitivity": 1.0,
-    "epsilon": 0.1,
-    "delta": 1e-5,
     })
 
     # Start strategy, run FedAvg for `num_rounds`
-    result = strategy.start(
+    result = dp_strategy.start(
         grid=grid,
         initial_arrays=arrays,
         train_config=train_config,
