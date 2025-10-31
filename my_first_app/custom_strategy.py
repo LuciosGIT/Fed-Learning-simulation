@@ -15,8 +15,8 @@ class CustomFedAdagrad(FedAdagrad):
             print("LR decreased to:", config["lr"])
         # Atualiza epsilon conforme desejado
         if "epsilon" in config:
-            # Exemplo: dobra epsilon a cada 10 rodadas (ajuste sua lógica aqui)
-            if server_round % 10 == 0 and server_round > 0:
+            # Exemplo: dobra epsilon a cada 2 rodadas 
+            if server_round % 2 == 0 and server_round > 0:
                 config["epsilon"] *= 2
                 print("Epsilon increased to:", config["epsilon"])
         # Passa o restante para a classe-pai
